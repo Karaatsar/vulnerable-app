@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>vulnerable app</head>
+    <body>
+        <h1>VULNERABLE APP</h1>
+        {% if user.is_authenticated %}
+        <p>
+            logged as:
+            <strong>{{ user.username }}</strong>
+        </p>
+        <p> 
+        <a href="{% url 'create_post' %}"> 
+            Create a post 
+        </a> 
+        | 
+        <a href="{% url 'logout' %}"> 
+            Logout 
+        </a> 
+    </p> 
+    {% else %} 
+    <p> 
+        <a href="{% url 'login' %}"> 
+            Login 
+        </a> 
+        | 
+        <a href="{% url 'register' %}"> 
+            Register 
+        </a>
+    </p> 
+    {% endif %} 
+    <hr> 
+    <h2>Posts</h2> 
+    {% for post in posts %} 
+        <article> 
+            <h3>{{ post.title }}</h3> 
+            <p> 
+                By: 
+                <strong>{{ post.author.username }}</strong> 
+            </p> 
+            <p> 
+                {{ post.content }} 
+            </p> 
+            <p> 
+                Created: 
+                {{ post.created_at }} 
+            </p> 
+            {% if user.is_authenticated %} 
+            <form 
+            method="post" 
+            action="{% url 'delete_post' post.id %}" 
+            > 
+            {% csrf_token %} 
+            <button type="submit"> 
+                Delete 
+            </button> 
+        </form> 
+        {% endif %}
+    </article> 
+    <hr> 
+    {% empty %} 
+    <p> 
+        No posts yet. 
+    </p> 
+    {% endfor %}
+    </body>
+</html>

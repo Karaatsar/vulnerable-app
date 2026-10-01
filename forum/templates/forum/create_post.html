@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create post</title>
+</head>
+
+<body>
+
+<h1>Create a post</h1>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <p>
+        <label>Title:</label>
+        <br>
+
+        <input
+            type="text"
+            name="title"
+            required
+        >
+    </p>
+
+    <p>
+        <label>Content:</label>
+        <br>
+
+        <textarea
+            name="content"
+            rows="10"
+            cols="50"
+            required
+        ></textarea>
+    </p>
+
+    <button type="submit">
+        Publish
+    </button>
+
+</form>
+
+<p>
+    <a href="{% url 'home' %}">
+        Back
+    </a>
+</p>
+
+</body>
+</html>
