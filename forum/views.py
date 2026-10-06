@@ -96,6 +96,12 @@ def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
     if request.method == "POST":
+        # tässä kohtaa on haavoittuvuus, jossa ei tarkisteta
+        # onko kirjautunut käyttäjä postauksen tekijä
+        # post.delete()
+        #vain kirjoittanut käyttäjä voi poistaa oman postauksen
+        if post.author!=request.user:
+            return redirect("home")
         post.delete()
 
         return redirect("home")

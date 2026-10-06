@@ -45,15 +45,9 @@
                 {{ post.created_at }} 
             </p> 
             {% if user.is_authenticated %} 
-            <form 
-            method="post" 
-            action="{% url 'delete_post' post.id %}" 
-            > 
-            {% csrf_token %} 
-            <button type="submit"> 
-                Delete 
-            </button> 
-        </form> 
+            <a href="{% url 'delete_post' post.id %}">
+                Delete
+            </a>
         {% endif %}
     </article> 
     <hr> 
