@@ -10,4 +10,9 @@ class Post(models.Model):
     def str(self):
         return self.title
 
-# Create your models here.
+class PrivateNote(models.Model):
+    user =  models.OneToOneField(User, on_delete=models.CASCADE)
+    note =  models.TextField()
+
+    def __str__(self):
+        return f"Private message for {self.user.username}"

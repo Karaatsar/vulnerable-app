@@ -3,7 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Post
+from .models import Post, PrivateNote
+
+from cryptography.fernet import Fernet
+from django.conf import settings
 
 
 def home(request):
@@ -110,4 +113,37 @@ def delete_post(request, post_id):
         request,
         "forum/delete_post.html",
         {"post": post},
+    )
+#uusi ominaisuuden lisääminen yksityisviestien tallentamiseen
+def private_note(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    note, created = PrivateNote.objects.get_or_create(
+        user=request.user, 
+        defaults={"note": ""}
+        )
+    
+    cipher = Fernet(settings.PRIVATE_NOTE_KEY.encode())
+
+    if request.method == "POST":
+        new_note = request.POST.get("note")
+        #tässä kohtaa haavoittuvuus
+        #yksityisviesti plaintekstinä tallennetaan tietokantaan, vaikka se pitäisi salata
+        #note.note = new_note
+        # note.save()
+        # KORJATAAN: salataan yksityisviesti ennen tallentamista
+        note.note = cipher.encrypt(new_note.encode()).decode()
+        note.save()
+        return redirect("private_note")
+    if note.note:
+        # KORJATAAN: puretaan salaus ennen näyttämistä
+        decrypted_note = cipher.decrypt(note.note.encode()).decode()
+    else:
+        decrypted_note = ""
+    
+    return render(
+        request,
+        "forum/private_note.html",
+        {"note": decrypted_note},
     )

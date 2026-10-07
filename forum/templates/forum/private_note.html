@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>private message</title>
+</head>
+<body>
+<h1>private message</h1>
+<p>
+    This note belongs to: 
+    <strong>{{ user.username }}</strong>
+</p>
+<form method="post">
+    {% csrf_token %}
+    <textarea 
+    name="note" 
+    rows="10" 
+    cols="60" 
+    >{{ note }}</textarea>
+    <br><br>
+
+    <button type="submit">
+        Save private message
+    </button>
+</form>
+<p>
+    <a href="{% url 'home' %}">
+        back to home
+    </a>
+</p>
+</body>
+</html>
