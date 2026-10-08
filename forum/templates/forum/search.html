@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> search posts</title>
+    </head>
+    <body>
+        <h1>search posts</h1>
+        <form method="get">
+            <input type="text" name="q" value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+        <p>
+            <a href="{% url 'home' %}">Back to home</a>
+        </p>
+        <hr>
+        {% if query %}
+            <h2> results for: {{query}} </h2>
+        {% endif %}
+        {% for post in posts %}
+        <article>
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+        </article>
+        <hr>
+    {% empty %}
+       {% if query %}
+       <p>No posts found.</p>
+       {% endif %}
+{% endfor %}
+    </body>
+</html>

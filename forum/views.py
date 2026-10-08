@@ -99,7 +99,7 @@ def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
     if request.method == "POST":
-        # tässä kohtaa on haavoittuvuus, jossa ei tarkisteta
+        # tässä kohtaa on haavoittuvuus (flaw1, broken access control), jossa ei tarkisteta
         # onko kirjautunut käyttäjä postauksen tekijä
         # post.delete()
         #vain kirjoittanut käyttäjä voi poistaa oman postauksen
@@ -128,7 +128,7 @@ def private_note(request):
 
     if request.method == "POST":
         new_note = request.POST.get("note")
-        #tässä kohtaa haavoittuvuus
+        #tässä kohtaa haavoittuvuus (flaw2, broken cryptography), jossa
         #yksityisviesti plaintekstinä tallennetaan tietokantaan, vaikka se pitäisi salata
         #note.note = new_note
         # note.save()
@@ -146,4 +146,34 @@ def private_note(request):
         request,
         "forum/private_note.html",
         {"note": decrypted_note},
+    )
+
+def search_posts(request):
+    query = request.GET.get("q", "")
+    # tässä kohtaa on haavoittuvuus (flaw3, SQL injection),
+    # käyttäjän syöttämä hakuparametri liitetään suoraan SQL-lauseeseen ilman asianmukaista parametrisoitua kyselyä
+    # posts =[]
+    # if query:
+    # with connection.cursor() as cursor:   
+            # sql= f"""
+            #     SELECT id, author_id, title, content, created_at
+            #     FROM forum_post
+            #     WHERE title LIKE %{query}% OR content LIKE %{query}%
+            # """
+            # cursor.execute(sql)
+            # rows = cursor.fetchall()
+            # KORJATAAN: django ORM:n avulla parametrisoidulla kyselyllä, jotta SQL-injektio estetään
+    if query:
+        posts = Post.objects.filter(
+            title__icontains=query
+            ) | Post.objects.filter(
+                content__icontains=query
+            )
+    else:
+        posts = Post.objects.none()
+
+    return render(
+        request, 
+        "forum/search.html",
+        {"posts": posts, "query": query}
     )
