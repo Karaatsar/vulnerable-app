@@ -16,3 +16,11 @@ class PrivateNote(models.Model):
 
     def __str__(self):
         return f"Private message for {self.user.username}"
+
+class ResetPassword(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reset password token for {self.user.username}"

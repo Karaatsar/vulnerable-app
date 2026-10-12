@@ -1,9 +1,10 @@
 
+import secrets
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Post, PrivateNote
+from .models import Post, PrivateNote, ResetPassword
 
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -177,3 +178,51 @@ def search_posts(request):
         "forum/search.html",
         {"posts": posts, "query": query}
     )
+
+def reset_password_request(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        try:
+            user=User.objects.get(username=username)
+        except User.DoesNotExist:
+            return render(
+                request,
+                "forum/reset_password_request.html",
+                {"error": "User does not exist."},
+            )
+        # tässä kohtaa on haavoittuvuus (flaw4, insecure password reset), jossa salasanaa vaihdetaan ilman sähköpostivarmennusta
+        # token=user.username
+        # KORJATAAN: generoidaan satunnainen token, joka tallennetaan tietokantaan ja näytetään käyttäjälle
+
+        token= secrets.token_urlsafe(32)
+        ResetPassword.objects.create(user=user, token=token)
+        return render(
+            request, 
+            "forum/reset_password_request.html",
+            {"success": True,"username": user.username, "token": token},
+        )
+    return render(request, "forum/reset_password_request.html")
+    
+def reset_password_confirm(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        token = request.POST.get("token")
+        new_password = request.POST.get("new_password")
+
+        try:
+            reset_request = ResetPassword.objects.get(user__username=username, token=token)
+        except ResetPassword.DoesNotExist:
+            return render(
+                request,
+                "forum/reset_password_confirm.html",
+                {"error": "Invalid token or username."},
+            )
+        reset_request.user.set_password(new_password)
+        reset_request.user.save()
+        reset_request.delete()
+        return render(
+            request,
+            "forum/reset_password_confirm.html",
+            {"success": True},
+        )
+    return render(request, "forum/reset_password_confirm.html")

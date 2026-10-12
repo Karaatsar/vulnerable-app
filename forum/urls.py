@@ -11,4 +11,6 @@ urlpatterns = [
     path("posts/<int:post_id>/delete/", views.delete_post, name="delete_post"),
     path("private_note/", views.private_note, name="private_note"),
     path("search/", views.search_posts, name="search_posts"),
+    path("reset_password/", views.reset_password_request, name="reset_password_request"),
+    path("reset_password/confirm/", views.reset_password_confirm, name="reset_password_confirm"),
 ]
